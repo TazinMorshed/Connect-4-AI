@@ -5,7 +5,7 @@ import math
 import pygame
 
 BLUE = (0, 0, 255)
-BLACK = (0, 0, 0)
+BLACK = (255, 255, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
@@ -27,6 +27,7 @@ def is_valid_location(board, col):
     return board[ROW_COUNT-1][col] == 0
 
 
+# check if row is occupied
 def get_next_open_row(board, col):
     for r in range(ROW_COUNT):
         if board[r][col] == 0:
