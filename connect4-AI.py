@@ -3,6 +3,7 @@ import random
 import pygame
 import sys
 import math
+import time
 
 # colors for GUI
 BLUE = (0, 0, 0)
@@ -24,8 +25,13 @@ AI_PIECE = 2
 
 WINDOW_LENGTH = 4
 
+CUTOFF = 5
+dep = 10
+increment = 0
 
 # using numpy, create an empty matrix of 6 rows and 7 columns
+
+
 def create_board():
     board = np.zeros((ROW_COUNT, COLUMN_COUNT))
     return board
@@ -156,11 +162,11 @@ def minimaxAB(board, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, AI_PIECE):
-                return (None, 100000000000000)
+                return (None, 100000000000000)  # AI WINS
             elif winning_move(board, PLAYER_PIECE):
-                return (None, -10000000000000)
+                return (None, -10000000000000)  # Human Wins
             else:  # Game is over, no more valid moves
-                return (None, 0)
+                return (None, 0)  # DRAW
         else:  # Depth is zero
             return (None, score_position(board, AI_PIECE))
     if maximizingPlayer:
@@ -202,6 +208,7 @@ def minimax(board, depth, maximizingPlayer):
     if depth == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, AI_PIECE):
+                # Augment this just so the format is return column, value. Since this is a recursive function
                 return (None, 100000000000000)
             elif winning_move(board, PLAYER_PIECE):
                 return (None, -10000000000000)
@@ -220,7 +227,11 @@ def minimax(board, depth, maximizingPlayer):
             if new_score > value:
                 value = new_score
                 column = col
+                # whatever column we are currently iterating on that gave us this new score
+                # on which we did the recusive minimax algorithm
         return column, value
+        # Return score and the column that return the score
+        # Return column just so we can figure out if its a valid location or not
 
     else:  # Minimizing player
         value = math.inf
@@ -338,8 +349,15 @@ while not game_over:
                     drop_piece(board, row, col, PLAYER_PIECE)
 
                     if winning_move(board, PLAYER_PIECE):
-                        label = myfont.render("Player 1 wins!!", 1, RED)
-                        screen.blit(label, (40, 10))
+                        #label = myfont.render("Player 2 wins!!", 1, YELLOW)
+                        print('\n')
+                        print('\n')
+                        print('---------------------------')
+                        print("Human wins")
+                        print('---------------------------')
+                        print('\n')
+                        print('\n')
+                        #screen.blit(label, (40, 10))
                         game_over = True
 
                     turn += 1
@@ -351,10 +369,17 @@ while not game_over:
     # # Ask for Player 2 Input
     if turn == AI and not game_over:
 
+        if CUTOFF < dep:
+            dep = CUTOFF
+
+        start = time.time()
         # col = random.randint(0, COLUMN_COUNT-1)
         # col = pick_best_move(board, AI_PIECE)
-        # col, minimax_score = minimax(board, 5, True)
-        # col, minimax_score = minimaxAB(board, 5, -math.inf, math.inf, True)
+        # col, minimax_score = minimax(board, dep, True)
+        col, minimax_score = minimaxAB(board, dep, -math.inf, math.inf, True)
+        end = time.time()
+
+        print("The time of execution of above program is :", end-start)
 
         if is_valid_location(board, col):
             # pygame.time.wait(500)
@@ -362,9 +387,15 @@ while not game_over:
             drop_piece(board, row, col, AI_PIECE)
 
             if winning_move(board, AI_PIECE):
-                label = myfont.render("Player 2 wins!!", 1, YELLOW)
-                print("player-2 wins")
-                screen.blit(label, (40, 10))
+                #label = myfont.render("Player 2 wins!!", 1, YELLOW)
+                print('\n')
+                print('\n')
+                print('---------------------------')
+                print("AI wins")
+                print('---------------------------')
+                print('\n')
+                print('\n')
+                #screen.blit(label, (40, 10))
                 game_over = True
 
             # print_board(board)
