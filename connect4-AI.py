@@ -5,10 +5,10 @@ import sys
 import math
 
 # colors for GUI
-BLUE = (0, 0, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
+BLUE = (0, 0, 0)
+BLACK = (255, 255, 255)
+RED = (255, 99, 71)
+YELLOW = (143, 188, 143)
 
 # row and column count
 ROW_COUNT = 6
@@ -170,7 +170,7 @@ def minimaxAB(board, depth, alpha, beta, maximizingPlayer):
             row = get_next_open_row(board, col)
             b_copy = board.copy()
             drop_piece(b_copy, row, col, AI_PIECE)
-            new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
+            new_score = minimaxAB(b_copy, depth-1, alpha, beta, False)[1]
             if new_score > value:
                 value = new_score
                 column = col
@@ -186,7 +186,7 @@ def minimaxAB(board, depth, alpha, beta, maximizingPlayer):
             row = get_next_open_row(board, col)
             b_copy = board.copy()
             drop_piece(b_copy, row, col, PLAYER_PIECE)
-            new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
+            new_score = minimaxAB(b_copy, depth-1, alpha, beta, True)[1]
             if new_score < value:
                 value = new_score
                 column = col
@@ -270,9 +270,9 @@ def draw_board(board):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r *
-                             SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
+                             SQUARESIZE, SQUARESIZE, SQUARESIZE))
             pygame.draw.circle(screen, BLACK, (int(
-                c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
+                c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
 
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
@@ -286,7 +286,7 @@ def draw_board(board):
 
 
 board = create_board()
-print_board(board)
+# print_board(board)
 game_over = False
 
 pygame.init()
@@ -294,7 +294,7 @@ pygame.init()
 SQUARESIZE = 100
 
 width = COLUMN_COUNT * SQUARESIZE
-height = (ROW_COUNT+1) * SQUARESIZE
+height = (ROW_COUNT) * SQUARESIZE
 
 size = (width, height)
 
@@ -310,24 +310,26 @@ turn = random.randint(PLAYER, AI)
 
 # Game loop
 while not game_over:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
-        if event.type == pygame.MOUSEMOTION:
-            pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-            posx = event.pos[0]
-            if turn == PLAYER:
-                pygame.draw.circle(
-                    screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
+        # if event.type == pygame.MOUSEMOTION:
+        #     pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+        #     posx = event.pos[0]
+        #     if turn == PLAYER:
+        #         pygame.draw.circle(
+        #             screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
 
         pygame.display.update()
-
+        start_ticks = pygame.time.get_ticks()
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
             # print(event.pos)
             # Ask for Player 1 Input
             if turn == PLAYER:
+
                 posx = event.pos[0]
                 col = int(math.floor(posx/SQUARESIZE))
 
@@ -343,7 +345,7 @@ while not game_over:
                     turn += 1
                     turn = turn % 2
 
-                    print_board(board)
+                    # print_board(board)
                     draw_board(board)
 
     # # Ask for Player 2 Input
@@ -351,8 +353,8 @@ while not game_over:
 
         # col = random.randint(0, COLUMN_COUNT-1)
         # col = pick_best_move(board, AI_PIECE)
-        col, minimax_score = minimax(board, 5, True)
-        #col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+        # col, minimax_score = minimax(board, 5, True)
+        col, minimax_score = minimaxAB(board, 5, -math.inf, math.inf, True)
 
         if is_valid_location(board, col):
             # pygame.time.wait(500)
@@ -361,10 +363,11 @@ while not game_over:
 
             if winning_move(board, AI_PIECE):
                 label = myfont.render("Player 2 wins!!", 1, YELLOW)
+                print("player-2 wins")
                 screen.blit(label, (40, 10))
                 game_over = True
 
-            print_board(board)
+            # print_board(board)
             draw_board(board)
 
             turn += 1
